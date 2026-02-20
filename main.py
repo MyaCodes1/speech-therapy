@@ -1,8 +1,26 @@
-from fastapi import FastAPI, HTTPException # Import FastAPI class from the fastapi module
+from fastapi import FastAPI, HTTPException, Depends, Response, Request # Import FastAPI class from the fastapi module
 from sqlalchemy.orm import Session # Import Session class from the sqlalchemy.orm module
 from database import SessionLocal, engine # Import SessionLocal and engine from the database module
-from models import Base, User 
-from fastapi import Depends
+from models import Base, User, Session as DbSession
+import secrets
+from passlib.context import CryptContext
+from pydantic import BaseModel
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") # Create a password context for hashing passwords using bcrypt
+
+def hash_password(password: str) -> str: # Function to hash a password
+    return pwd_context.hash(password) # Hash the password using the password context and return the hashed password
+class RegisterRequest(BaseModel): # Define a Pydantic model for the registration request
+    email: str # Email field of type string
+    name: str | None = None # Optional name field of type string
+    password: str # Password field of type string
+
+  
+
+def verify_password(password: str, password_hash: str) -> bool: # Function to verify a password against a hashed password
+    return pwd_context.verify(password, password_hash) # Verify the password using the password context and return the result
+
+
 app = FastAPI() # Create an instance of the FastAPI class and assign it to the variable 'app'
 Base.metadata.create_all(bind=engine) # Create all tables in the database based on the models defined in the Base class
 
@@ -18,14 +36,40 @@ def get_db(): #DB dependency
 async def root():
     return {"message": "Backend testing"}
 
-@app.post("/test-create-user")
-def test_create_user (email: str, name: str | None = None, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.email == email).first()
+
+class LoginRequest(BaseModel): # Define a Pydantic model for the login request
+        email: str # Email field of type string
+        password: str # Password field of type string
+
+@app.post("/auth/register") # Define a route for the "/auth/register" URL that will respond to POST requests
+def register(data: RegisterRequest, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(User.email == data.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
-    user = User(email=email, name=name)
+    user = User(
+        email=data.email,
+        name=data.name,
+        password_hash=hash_password(data.password)
+    )
+
     db.add(user)
     db.commit()
     db.refresh(user)
-    return {"id": user.id, "email": user.email, name: user.name}
+    return {"message": "User registered successfully", "user_id": user.id}
+
+
+
+@app.post("/auth/login") # Define a route for the "/auth/login" URL that will respond to POST requests
+def login(data: LoginRequest, response: Response, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user or not verify_password(data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    token = secrets.token_urlsafe(32)
+    db_session = DbSession(session_token=token, user_id=user.id)
+    db.add(db_session)
+    db.commit()
+
+    response.set_cookie(key="session_token", value=token, httponly=True, samesite="lax",)
+    return {"message": "Login successful"}

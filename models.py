@@ -8,13 +8,12 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    password__hash = Column(String, nullable=False)
+    password_hash = Column(String, nullable=False)
 
-    class Session(Base):
-        __tablename__ = "sessions"
+class Session(Base):
+    __tablename__ = "sessions"
 
-        id = Column(Integer, primary_key=True, index=True)
-        session_token = Column(String, unique=True, index=True, nullable=False)
-        user_id = Column(Integer, nullable=False)
-        created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-       
+    id = Column(Integer, primary_key=True, index=True)
+    session_token = Column(String, unique=True, index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
