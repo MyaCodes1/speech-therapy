@@ -32,6 +32,21 @@ def get_db(): #DB dependency
     finally:
         db.close() # Ensure that the database session is closed after use
 
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    db_session = db.query(DbSession).filter(DbSession.session_token == session_token).first()
+    if not db_session:
+        raise HTTPException(status_code=401, detail="Invalid session token")
+    
+    user = db.query(User).filter(User.id == db_session.user_id).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user 
+
+
 @app.get("/") # Define a route for the root URL ("/") that will respond to GET requests
 async def root():
     return {"message": "Backend testing"}
@@ -73,3 +88,15 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
 
     response.set_cookie(key="session_token", value=token, httponly=True, samesite="lax",)
     return {"message": "Login successful"}
+
+@app.get("/auth/me") # Define a route for the "/auth/me" URL that will respond to GET requests
+def get_me(current_user: User = Depends(get_current_user)):
+    return {"id": current_user.id, "email": current_user.email, "name": current_user.name}
+
+@app.post("/auth/logout") # Define a route for the "/auth/logout" URL that will respond to POST requests
+def logout(request: Request, response: Response, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    token = request.cookies.get("session_token")
+    db.query(DbSession).filter(DbSession.session_token == token).delete()
+    db.commit()
+    response.delete_cookie(key="session_token")
+    return {"message": "Logout successful"}
