@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, Response, Request # Import FastAPI class from the fastapi module
 from sqlalchemy.orm import Session # Import Session class from the sqlalchemy.orm module
 from database import SessionLocal, engine # Import SessionLocal and engine from the database module
-from models import Base, User, Session as DbSession
+from models import Base, User, Session as DbSession, Exercise
 import secrets
 from passlib.context import CryptContext
 from pydantic import BaseModel
@@ -15,7 +15,16 @@ class RegisterRequest(BaseModel): # Define a Pydantic model for the registration
     name: str | None = None # Optional name field of type string
     password: str # Password field of type string
 
-  
+
+class ExerciseResponse(BaseModel):
+    id: int
+    word: str
+    phoneme: str 
+    difficulty: int
+
+    class Config:
+        from_attributes = True
+
 
 def verify_password(password: str, password_hash: str) -> bool: # Function to verify a password against a hashed password
     return pwd_context.verify(password, password_hash) # Verify the password using the password context and return the result
@@ -100,3 +109,47 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db), 
     db.commit()
     response.delete_cookie(key="session_token")
     return {"message": "Logout successful"}
+
+@app.post("/exercises/seed")
+def seed_exercises(db: Session = Depends(get_db)):
+    existing = db.query(Exercise).first()
+    if existing:
+        return {"message": "Exercises already seeded"}
+    
+    exercises = [
+        Exercise(word="thank", phoneme="TH", difficulty = 1),
+        Exercise(word="three", phoneme="TH", difficulty = 1),
+        Exercise(word="throw", phoneme="TH", difficulty = 2),
+        Exercise(word="thing", phoneme="TH", difficulty = 1),
+        Exercise(word="thunder", phoneme="TH", difficulty =2),
+
+
+        Exercise(word="rabbit", phoneme="R", difficulty = 1),
+        Exercise(word="rocket", phoneme="R", difficulty = 1),
+        Exercise(word="river", phoneme="R", difficulty = 2),
+        Exercise(word="run", phoneme="R", difficulty = 1),
+        Exercise(word="race", phoneme="R", difficulty = 2),
+
+
+        Exercise(word="sun", phoneme="S", difficulty = 1),
+        Exercise(word="star", phoneme="S", difficulty = 1),
+        Exercise(word="sand", phoneme="S", difficulty = 1),
+        Exercise(word="sock", phoneme="S", difficulty = 1),
+        Exercise(word="slow", phoneme="S", difficulty = 2),
+    ]
+
+    db.add_all(exercises)
+    db.commit()
+    return {"message": "Exercises seeded successfully", "count": len(exercises)} 
+    
+
+@app.get("/exercises")
+def get_exercises(phoneme: str = None, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Exercise)
+    if phoneme:
+        query = query.filter(Exercise.phoneme == phoneme)
+        return query.all()
+    
+
+
+
