@@ -9,6 +9,8 @@ class User(Base):
     name = Column(String, nullable=True)
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
+    xp = Column(Integer, default=0, nullable=False)
+    pin = Column(String, nullable=True)
 
 class Session(Base):
     __tablename__ = "sessions"

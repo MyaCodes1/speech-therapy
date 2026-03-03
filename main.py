@@ -193,6 +193,9 @@ def submit_attempt(
         is_correct=is_correct,
         score=score
     )
+    
+    xp_earned = 10 if is_correct else 5
+    current_user.xp += xp_earned
     db.add(attempt)
     db.commit()
 
@@ -200,5 +203,35 @@ def submit_attempt(
         "transcription": transcription,
         "is_correct": is_correct,
         "score": score,
-        "target": target
+        "target": target,
+        "xp_earned": xp_earned,
+        "total_xp": current_user.xp
     }
+
+@app.get("/parent/dashboard")
+def get_progress(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    total_attempts = db.query(Attempt).filter(Attempt.user_id == current_user.id).count()
+    correct_attempts = db.query(Attempt).filter(Attempt.user_id == current_user.id, Attempt.is_correct == True).count()
+
+    return {
+        "name": current_user.name,
+        "total_attempts": total_attempts,
+        "correct_attempts": correct_attempts,
+        "accuracy": (correct_attempts / total_attempts * 100) if total_attempts > 0 else 0,
+        "xp": current_user.xp
+    }
+
+@app.get("/parent/attempts")
+def get_attempts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    attempts = db.query(Attempt, Exercise).join(Exercise, Attempt.exercise_id == Exercise.id).filter(Attempt.user_id == current_user.id).all()
+    return [
+        {
+            "word": exercise.word,
+            "phoneme": exercise.phoneme,
+            "transcription": attempt.transcription,
+            "is_correct": attempt.is_correct,
+            "score": attempt.score,
+            "attempted_at": attempt.attempted_at
+        }
+        for attempt, exercise in attempts
+    ]
