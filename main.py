@@ -1,10 +1,14 @@
 from fastapi import FastAPI, HTTPException, Depends, Response, Request # Import FastAPI class from the fastapi module
 from sqlalchemy.orm import Session # Import Session class from the sqlalchemy.orm module
 from database import SessionLocal, engine # Import SessionLocal and engine from the database module
-from models import Base, User, Session as DbSession, Exercise
+from models import Base, User, Session as DbSession, Exercise, Attempt
 import secrets
 from passlib.context import CryptContext
 from pydantic import BaseModel
+import whisper 
+import tempfile 
+import os
+from fastapi import UploadFile, File
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") # Create a password context for hashing passwords using bcrypt
 
@@ -148,8 +152,53 @@ def get_exercises(phoneme: str = None, db: Session = Depends(get_db), current_us
     query = db.query(Exercise)
     if phoneme:
         query = query.filter(Exercise.phoneme == phoneme)
-        return query.all()
+    return query.all()
     
 
 
 
+@app.post("/exercises/{exercise_id}/attempt")
+def submit_attempt(
+    exercise_id: int,
+    audio: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+
+):
+    exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
+    if not exercise:
+        raise HTTPException(status_code=404, detail="Exercise not found")
+    
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+        tmp.write(audio.file.read())
+        tmp_path = tmp.name
+
+
+    model = whisper.load_model("base")
+    result = model.transcribe(tmp_path)
+    transcription = result["text"].strip().lower()
+
+    os.remove(tmp_path)
+
+
+    target = exercise.word.lower()
+    is_correct = transcription == target
+    score = 100 if is_correct else 0
+
+
+    attempt = Attempt(
+        user_id=current_user.id,
+        exercise_id=exercise.id,
+        transcription=transcription,
+        is_correct=is_correct,
+        score=score
+    )
+    db.add(attempt)
+    db.commit()
+
+    return {
+        "transcription": transcription,
+        "is_correct": is_correct,
+        "score": score,
+        "target": target
+    }
