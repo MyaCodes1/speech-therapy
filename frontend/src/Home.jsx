@@ -54,7 +54,7 @@ function Home() {
                     {filteredExercises.map(ex => (
                         <div key={ex.id}>
                             <p>{ex.word}</p>
-                            <button>Practice</button>
+                            <button onClick={() => navigate(`/exercises/${ex.id}/${ex.word}`)}>Practice</button>
 
                         </div>
                     ))}
