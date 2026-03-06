@@ -9,6 +9,19 @@ import whisper
 import tempfile 
 import os
 from fastapi import UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI() # Create an instance of the FastAPI class and assign it to the variable 'app'
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+
+)
+Base.metadata.create_all(bind=engine) # Create all tables in the database based on the models defined in the Base class
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") # Create a password context for hashing passwords using bcrypt
 
@@ -32,11 +45,6 @@ class ExerciseResponse(BaseModel):
 
 def verify_password(password: str, password_hash: str) -> bool: # Function to verify a password against a hashed password
     return pwd_context.verify(password, password_hash) # Verify the password using the password context and return the result
-
-
-app = FastAPI() # Create an instance of the FastAPI class and assign it to the variable 'app'
-Base.metadata.create_all(bind=engine) # Create all tables in the database based on the models defined in the Base class
-
 
 def get_db(): #DB dependency
     db = SessionLocal() # Create a new database session using the SessionLocal class
