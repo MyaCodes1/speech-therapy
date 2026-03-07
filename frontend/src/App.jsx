@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate } from "react-router-dom"
 import Register from "./Register"
 import Home from "./Home"
 import Exercises from "./Exercises"
+import ParentDashboard from "./ParentDashboard"
 
 
 function Login() {
@@ -62,6 +63,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/home" element={<Home />} />
       <Route path="/exercises/:id/:word" element={<Exercises />} />
+      <Route path="/parent" element={<ParentDashboard />} />
     </Routes>
   )
 }
