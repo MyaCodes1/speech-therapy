@@ -1,0 +1,15 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Comic Sans MS", cursive, sans-serif;
+  background-color: #f5efe3;
+  min-height: 100vh;
+  background-image: url("/background.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: fixed;
+}
