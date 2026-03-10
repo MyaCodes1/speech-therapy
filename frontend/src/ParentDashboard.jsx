@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
 
 function ParentDashboard() {
@@ -67,17 +67,25 @@ function ParentDashboard() {
             )}
 
             <div style={{ background: "white", borderRadius: "15px", padding: "2rem", boxShadow: "0 4px 15px rgba(0,0,0,0.08)", marginBottom: "2rem" }}>
-                <h2 style={{ color: "#5c3d1e", marginBottom: "1.5rem" }}> Attempts by Phoneme </h2>
+                <h2 style={{ color: "#5c3d1e", marginBottom: "1.5rem" }}> Correct Vs. Incorrect attempts </h2>
                 <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="phoneme" />
-                        <YAxis />
+                    <PieChart>
+                        <Pie
+                            data={[
+                                { name: "Correct", value: stats ? stats.correct_attempts : 0 },
+                                { name: "Incorrect", value: stats ? stats.total_attempts - stats.correct_attempts : 0 }
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            dataKey="value"
+                            label >
+                            <Cell fill="#50C878" />
+                            <Cell fill="#FF0026" />
+                        </Pie>
                         <Tooltip />
                         <Legend />
-                        <Bar dataKey="correct" name="correct" fill="#82ca9d" />
-                        <Bar dataKey="incorrect" name="Incorrect" fill="#f08080" />
-                    </BarChart>
+                    </PieChart>
                 </ResponsiveContainer>
 
             </div>

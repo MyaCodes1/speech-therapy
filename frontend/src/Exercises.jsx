@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
+import Confetti from 'react-confetti'
 
 function Exercises() {
     const { id, word } = useParams()
@@ -41,7 +42,22 @@ function Exercises() {
 
     }
     return (
+
+
+
+
         <div style={{ minHeight: "100vh", backgroundImage: "url('background.jpg')", backgroundSize: "cover", backgroundPosition: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+
+            {result && result.is_correct && (
+                <Confetti
+                    width={window.innerWidth}
+                    height={window.innerHeight}
+                    numberOfPieces={300}
+                    gravity={0.3}
+                    colors={['#FFD700', '#FF1493', '#FF8C00']}
+                    recycle={false}
+                />
+            )}
             <div style={{ background: "white", padding: "3rem", borderRadius: "30px", boxShadow: "0 1px 40px rgba(0,0,0,0.1)", textAlign: "center", width: "90%", maxWidth: "900pxs" }}>
                 <h2 style={{ color: "#5c3d1e", fontSize: "2.5rem", marginBottom: "1rem" }}> Say this word!
                 </h2>
@@ -73,6 +89,8 @@ function Exercises() {
                         transition: "all 0.3s ease"
 
                     }}
+
+
                 >
 
                     <span style={{ fontSize: "4rem" }}>🎤</span>
@@ -100,6 +118,8 @@ function Exercises() {
                 )}
             </div>
         </div>
+
+
     )
 }
 
