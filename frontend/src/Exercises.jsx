@@ -41,6 +41,13 @@ function Exercises() {
         }, 3000)
 
     }
+
+    const speakWord = () => {
+        const utterance = new SpeechSynthesisUtterance(word)
+        utterance.rate = 0.8
+        window.speechSynthesis.speak(utterance)
+    }
+
     return (
 
 
@@ -69,6 +76,12 @@ function Exercises() {
                 <h1 style={{ fontSize: "4.5rem", fontWeight: "bold", color: "#5c3d1e", marginBottom: "2rem", letterSpacing: "3px" }}>
                     {word}
                 </h1>
+
+                <button onClick={speakWord}
+                    style={{ background: "white", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer", marginBottom: "2rem" }}>
+                    Hear the word
+                </button>
+
 
                 <div
                     onClick={!recording ? handleRecord : undefined}
