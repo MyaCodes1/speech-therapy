@@ -59,9 +59,12 @@ function Register() {
                 </button>
 
                 {error && <p style={{ color: "red", marginTop: "1rem", textAlign: "center" }}>{error}</p>}
-                <button onClick={() => navigate("/login")} style={{ background: "none", border: "none", color: "#5c3d1e", cursor: "pointer", fontWeight: "bold", fontSize: "1rem", textAlign: "center" }}>
-                    Login
-                </button>
+                <p style={{ marginTop: "1rem", textAlign: "center", color: "#888" }}>
+                    Already have an account? {" "}
+                    <button onClick={() => navigate("/login")} style={{ background: "none", border: "none", color: "#5c3d1e", fontWeight: "bold", cursor: "pointer", fontSize: "1rem" }}>
+                        Log in
+                    </button>
+                </p>
 
 
 

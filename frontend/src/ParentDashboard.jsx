@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts"
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts"
 
 
 function ParentDashboard() {
@@ -37,6 +37,18 @@ function ParentDashboard() {
         { phoneme: "S", correct: attempts.filter(a => a.phoneme == "S" && a.is_correct).length, incorrect: attempts.filter(a => a.phoneme == "S" && !a.is_correct).length },
         { phoneme: "TH", correct: attempts.filter(a => a.phoneme == "TH" && a.is_correct).length, incorrect: attempts.filter(a => a.phoneme == "TH" && !a.is_correct).length },
     ]
+
+
+    const LineChartData = attempts.reduce((acc, attempt) => {
+        const date = attempt.attempted_at.split("T")[0] // Get date part only
+        const existing = acc.find(a => a.date === date)
+        if (existing) {
+            existing.attempts += 1
+        } else {
+            acc.push({ date, attempts: 1 })
+        }
+        return acc
+    }, [])
 
     return (
         <div style={{ minHeight: "100vh", background: "#f5efe6", padding: "2rem" }}>
@@ -87,8 +99,27 @@ function ParentDashboard() {
                         <Legend />
                     </PieChart>
                 </ResponsiveContainer>
-
             </div>
+            <div style={{ background: "white", borderRadius: "15px", padding: "2rem", boxShadow: "0 4px 15px rgba(0,0,0,0.08)", marginBottom: "2rem" }}>
+                <h2 style={{ color: "#5c3d1e", marginBottom: "1.5rem" }}> Progress over time </h2>
+                <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={LineChartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <XAxis dataKey="date" />
+                        <Line type="monotone" dataKey="attempts" strokeWidth={2} stroke="#5c3d1e" dot={{ fill: "#e07b39" }} />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
+
+
+
+
+
+
+
             <div style={{ background: "white", borderRadius: "15px", padding: "2rem", boxShadow: "0 4px 15px rgba(0,0,0,0.08)" }}>
                 <h2 style={{ color: "#5c3d1e", marginBottom: "1.5rem" }}>  Attempt history </h2>
                 {attempts.length === 0 ? (
