@@ -7,6 +7,9 @@ function ParentDashboard() {
     const [stats, setStats] = useState(null)
     const [attempts, setAttempts] = useState([])
     const navigate = useNavigate()
+    const [pinVerified, setPinVerified] = useState(false)
+    const [pinInput, setPinInput] = useState("")
+    const [pinError, setPinError] = useState("")
 
     const fetchAttempts = async () => {
         const response = await fetch("/api/parent/attempts", {
@@ -29,26 +32,41 @@ function ParentDashboard() {
 
     }, [])
 
-
-
-
-    const chartData = [
-        { phoneme: "R", correct: attempts.filter(a => a.phoneme == "R" && a.is_correct).length, incorrect: attempts.filter(a => a.phoneme == "R" && !a.is_correct).length },
-        { phoneme: "S", correct: attempts.filter(a => a.phoneme == "S" && a.is_correct).length, incorrect: attempts.filter(a => a.phoneme == "S" && !a.is_correct).length },
-        { phoneme: "TH", correct: attempts.filter(a => a.phoneme == "TH" && a.is_correct).length, incorrect: attempts.filter(a => a.phoneme == "TH" && !a.is_correct).length },
-    ]
-
-
     const LineChartData = attempts.reduce((acc, attempt) => {
         const date = attempt.attempted_at.split("T")[0] // Get date part only
         const existing = acc.find(a => a.date === date)
         if (existing) {
-            existing.attempts += 1
+            existing.total += 1
+            if (attempt.is_correct) existing.correct += 1
+            existing.percentage = Math.round((existing.correct / existing.total) * 100)
         } else {
-            acc.push({ date, attempts: 1 })
+            acc.push({ date, total: 1, correct: attempt.is_correct ? 1 : 0, percentage: attempt.is_correct ? 100 : 0 })
         }
         return acc
     }, [])
+
+    const handlePinSubmit = async () => {
+        const response = await fetch("/api/auth/verify-pin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                pin: pinInput.trim()
+            }),
+        })
+        const data = await response.json()
+        if (response.ok) {
+            setPinVerified(true)
+        }
+        else {
+            setPinError(data.detail || "Incorrect PIN. Please try again.")
+        }
+    }
+    //pin verfieid code 
+
+
+
+
 
     return (
         <div style={{ minHeight: "100vh", background: "#f5efe6", padding: "2rem" }}>
@@ -101,15 +119,15 @@ function ParentDashboard() {
                 </ResponsiveContainer>
             </div>
             <div style={{ background: "white", borderRadius: "15px", padding: "2rem", boxShadow: "0 4px 15px rgba(0,0,0,0.08)", marginBottom: "2rem" }}>
-                <h2 style={{ color: "#5c3d1e", marginBottom: "1.5rem" }}> Progress over time </h2>
+                <h2 style={{ color: "#5c3d1e", marginBottom: "1.5rem" }}> Correct over time </h2>
                 <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={LineChartData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
-                        <YAxis />
+                        <YAxis ticketFormatter={(value) => `${value}%`} domain={[0, 100]} />
                         <Tooltip />
                         <XAxis dataKey="date" />
-                        <Line type="monotone" dataKey="attempts" strokeWidth={2} stroke="#5c3d1e" dot={{ fill: "#e07b39" }} />
+                        <Line type="monotone" dataKey="percentage" strokeWidth={2} stroke="#5c3d1e" dot={{ fill: "#e07b39" }} />
                     </LineChart>
                 </ResponsiveContainer>
             </div>

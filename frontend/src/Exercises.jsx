@@ -78,7 +78,7 @@ function Exercises() {
                 </h1>
 
                 <button onClick={speakWord}
-                    style={{ background: "white", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer", marginBottom: "2rem" }}>
+                    style={{ background: "#e07b39", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer", marginBottom: "2rem" }}>
                     Hear the word
                 </button>
 

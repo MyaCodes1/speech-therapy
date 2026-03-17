@@ -7,6 +7,7 @@ function Register() {
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
     const navigate = useNavigate()
+    const [pin, setPin] = useState("")
 
 
     const handleRegister = async () => {
@@ -14,7 +15,7 @@ function Register() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify({ name, email, password }),
+            body: JSON.stringify({ name, email, password, pin }),
         })
         if (response.ok) {
             alert("Sign up successful! Please log in.")
@@ -54,6 +55,16 @@ function Register() {
                     onChange={(e) => setPassword(e.target.value)}
                     style={{ width: "100%", padding: "12px", marginBottom: "1rem", borderRadius: "10px", border: "2px solid #d4a96a", fontSize: "1rem", outline: "none" }} />
 
+                <input type="password"
+                    placeholder="Create a 4-digit parent PIN"
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value)}
+                    style={{ width: "100%", padding: "12px", marginBottom: "1rem", borderRadius: "10px", border: "2px solid #d4a96a", fontSize: "1rem", outline: "none" }} />
+
+
+
+
+
                 <button onClick={handleRegister} style={{ width: "100%", padding: "12px", background: "#5c3d1e", color: "white", border: "none", borderRadius: "10px", fontSize: "1rem", cursor: "pointer" }}>
                     Register
                 </button>
@@ -61,7 +72,7 @@ function Register() {
                 {error && <p style={{ color: "red", marginTop: "1rem", textAlign: "center" }}>{error}</p>}
                 <p style={{ marginTop: "1rem", textAlign: "center", color: "#888" }}>
                     Already have an account? {" "}
-                    <button onClick={() => navigate("/login")} style={{ background: "none", border: "none", color: "#5c3d1e", fontWeight: "bold", cursor: "pointer", fontSize: "1rem" }}>
+                    <button onClick={() => navigate("/")} style={{ background: "none", border: "none", color: "#5c3d1e", fontWeight: "bold", cursor: "pointer", fontSize: "1rem" }}>
                         Log in
                     </button>
                 </p>
