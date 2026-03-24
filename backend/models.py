@@ -10,7 +10,8 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     xp = Column(Integer, default=0, nullable=False)
-    pin = Column(String, nullable=True)
+    #pin = Column(String, nullable=True)
+    age = Column(Integer, nullable=True)
 
 class Session(Base):
     __tablename__ = "sessions"

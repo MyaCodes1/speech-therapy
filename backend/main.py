@@ -27,20 +27,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") # Create a pas
 
 def hash_password(password: str) -> str: # Function to hash a password
     return pwd_context.hash(password) # Hash the password using the password context and return the hashed password
+
 class RegisterRequest(BaseModel): # Define a Pydantic model for the registration request
     email: str # Email field of type string
     name: str | None = None # Optional name field of type string
     password: str # Password field of type string
-
-
-class ExerciseResponse(BaseModel):
-    id: int
-    word: str
-    phoneme: str 
-    difficulty: int
-
-    class Config:
-        from_attributes = True
+    age: int | None = None
 
 
 def verify_password(password: str, password_hash: str) -> bool: # Function to verify a password against a hashed password
@@ -74,8 +66,8 @@ async def root():
 
 
 class LoginRequest(BaseModel): # Define a Pydantic model for the login request
-        email: str # Email field of type string
-        password: str # Password field of type string
+    email: str # Email field of type string
+    password: str # Password field of type string
 
 @app.post("/auth/register") # Define a route for the "/auth/register" URL that will respond to POST requests
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
@@ -86,7 +78,8 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     user = User(
         email=data.email,
         name=data.name,
-        password_hash=hash_password(data.password)
+        password_hash=hash_password(data.password),
+        age = data.age
     )
 
     db.add(user)
@@ -112,7 +105,7 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
 
 @app.get("/auth/me") # Define a route for the "/auth/me" URL that will respond to GET requests
 def get_me(current_user: User = Depends(get_current_user)):
-    return {"id": current_user.id, "email": current_user.email, "name": current_user.name}
+    return {"id": current_user.id, "email": current_user.email, "name": current_user.name, "age": current_user.age}
 
 @app.post("/auth/logout") # Define a route for the "/auth/logout" URL that will respond to POST requests
 def logout(request: Request, response: Response, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -243,3 +236,6 @@ def get_attempts(db: Session = Depends(get_db), current_user: User = Depends(get
         }
         for attempt, exercise in attempts
     ]
+    
+
+    

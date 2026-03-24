@@ -9,6 +9,7 @@ function Home() {
     const [userName, setUserName] = useState("")
     const navigate = useNavigate()
     const [hoveredPhoneme, setHoveredPhoneme] = useState(null)
+    const [selectedDifficulty, setSelectedDifficulty] = useState(null)
 
     const fetchExercises = async () => {
         const response = await fetch("/api/exercises", {
@@ -35,20 +36,32 @@ function Home() {
 
     }, [])
 
-    const filteredExercises = selectedPhoneme
-        ? exercises.filter(ex => ex.phoneme === selectedPhoneme)
+    const filteredExercises = selectedPhoneme && selectedDifficulty
+        ? exercises.filter(ex => ex.phoneme === selectedPhoneme && ex.difficulty === selectedDifficulty)
         : []
 
     return (
         <div style={{ minHeight: "100vh", backgroundImage: "url('background.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1.5rem 2rem" }}>
-                <h2 style={{ color: "white", textShadow: "3px 3px 0px #5c3d1e", border: "none", borderRadius: "10px", padding: "10 px 20px", fontSize: "2rem", cursor: "pointer" }}>
+                <h2 style={{ color: "white", textShadow: "3px 3px 0px #5c3d1e", fontSize: "2rem", cursor: "pointer" }}>
                     Hello {userName}!</h2>
 
-                <button onClick={() => navigate("/parent")} style={{ background: "#f7d794", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer" }}>
-                    Parent Dashboard
-                </button>
+                <div style={{ display: "flex", gap: "1rem" }}>
+
+                    <button onClick={() => navigate("/parent")} style={{ background: "#f7d794", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer" }}>
+                        Parent Dashboard
+                    </button>
+                    <button onClick={async () => {
+                        await fetch("/api/auth/logout", { method: "POST", credentials: "include" })
+                        navigate("/")
+                    }} style={{ background: "#e07b39", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer" }} >
+                        Logout
+                    </button>
+                </div>
+
             </div>
+
+
 
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "4rem" }}>
                 <h2 style={{ color: "white", textShadow: "2px 2px 0px #5c3d1e", fontSize: "2rem", marginBottom: "2rem" }}> Select a phoneme to practice </h2>
@@ -87,33 +100,80 @@ function Home() {
                 </div>
 
                 {selectedPhoneme && (
-                    <div style={{ marginTop: "3rem", background: "rgba(255, 255, 255, 0.9)", borderRadius: "20px", padding: "2rem", width: "90%", maxWidth: "600px" }}>
-                        <h3 style={{ color: "#5c3d1e", marginBottom: "1.5rem", textAlign: "center", fontSize: "1.5rem" }}>{selectedPhoneme} Words</h3>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
-                            {filteredExercises.map(ex => (
-                                <div key={ex.id} style={{ background: "white", borderRadius: "15px", padding: "1rem", textAlign: "center", boxShadow: "0 4px 10px rgba(0,0,0,0.1)" }}>
-                                    <p style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#5c3d1e", marginBottom: "0.5rem" }}>{ex.word}</p>
-                                    <button onClick={() => navigate(`/exercises/${ex.id}/${ex.word}`)}
-                                        style={{ background: "#5c3d1e", color: "white", border: "none", borderRadius: "8px", padding: "8px 16px", fontSize: "0.9rem", cursor: "pointer" }}>
-                                        Practice
-                                    </button>
-                                </div>
-                            ))}
+                    <div style={{ marginTop: "3rem", textAlign: "center" }}>
+                        <h3 style={{ color: "white", textShadow: "1px 1px 0px #5c3d1e", fontSize: "1.5rem", marginBottom: "1rem" }}>
+                            Choose difficulty
+                        </h3>
+                        <div style={{ display: "flex", gap: "2rem", justifyContent: "center", marginBottom: "2rem" }}>
+                            <div onClick={() => setSelectedDifficulty(1)}
+                                style={{
+                                    width: "120px",
+                                    height: "120px",
+                                    borderRadius: "50%",
+                                    background: selectedDifficulty === 1 ? "#f7d794" : "#e07b39",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    cursor: "pointer",
+                                    flexDirection: "column",
+                                    border: selectedDifficulty === 1 ? "4px solid white" : "4px solid transparent",
+                                    transition: "all 0.2s ease"
+                                }} >
+                                <span style={{ fontSize: "2rem" }}>⭐️</span>
+                                <span style={{ color: "white", fontWeight: "bold" }}>Easy</span>
+                            </div>
+                            <div onClick={() => setSelectedDifficulty(2)}
+                                style={{
+                                    width: "120px",
+                                    height: "120px",
+                                    borderRadius: "50%",
+                                    background: selectedDifficulty === 2 ? "#f7d794" : "#f2a365",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    cursor: "pointer",
+                                    flexDirection: "column",
+                                    border: selectedDifficulty === 2 ? "4px solid white" : "4px solid transparent",
+                                    transition: "all 0.2s ease"
+                                }}>
+                                <span style={{ fontSize: "2rem" }}>⭐️⭐️</span>
+                                <span style={{ color: "white", fontWeight: "bold" }}>Hard</span>
+                            </div>
                         </div>
+
+                        {selectedDifficulty && (
+                            <div style={{
+                                background: "rgba(255, 255, 255,0.9)",
+                                borderRadius: "20px",
+                                padding: "2rem",
+                                width: "90%",
+                                maxWidth: "600px",
+                                margin: "0 auto",
+                            }}>
+                                <h3 style={{ color: "#5c3d1e", marginBottom: "1.5rem", textAlign: "center", fontSize: "1.5rem" }}>
+                                    {selectedPhoneme} Words </h3>
+                                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
+                                    {filteredExercises.map(ex => (
+                                        <div key={ex.id} style={{ background: "white", borderRadius: "15px", padding: "1rem", textAlign: "center", boxShadow: "0 4px 15px rgba(0,0,0,0.08)" }}>
+
+                                            <p style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#5c3d1e", marginBottom: "0.5rem" }}
+                                            >{ex.word}</p>
+                                            <button onClick={() => navigate(`/exercises/${ex.id}/${ex.word}`)}
+                                                style={{ background: "#5c3d1e", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer" }}>
+                                                Practice
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                     </div>
                 )}
+
             </div>
         </div>
     )
-
-
-
-
-
-
-
-
 }
-
 
 export default Home

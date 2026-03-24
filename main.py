@@ -31,6 +31,7 @@ class RegisterRequest(BaseModel): # Define a Pydantic model for the registration
     email: str # Email field of type string
     name: str | None = None # Optional name field of type string
     password: str # Password field of type string
+    pin: str
 
 
 class ExerciseResponse(BaseModel):
@@ -41,6 +42,8 @@ class ExerciseResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
 
 
 def verify_password(password: str, password_hash: str) -> bool: # Function to verify a password against a hashed password
@@ -77,8 +80,12 @@ class LoginRequest(BaseModel): # Define a Pydantic model for the login request
         email: str # Email field of type string
         password: str # Password field of type string
 
+#class PinRequest(BaseModel):
+# pin: str
+
 @app.post("/auth/register") # Define a route for the "/auth/register" URL that will respond to POST requests
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
+    print("Registering user with PIN:", repr(data.pin))
     existing_user = db.query(User).filter(User.email == data.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -86,7 +93,8 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     user = User(
         email=data.email,
         name=data.name,
-        password_hash=hash_password(data.password)
+    # password_hash=hash_password(data.password),
+    # pin =data.pin
     )
 
     db.add(user)
@@ -233,13 +241,25 @@ def get_progress(db: Session = Depends(get_db), current_user: User = Depends(get
 def get_attempts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     attempts = db.query(Attempt, Exercise).join(Exercise, Attempt.exercise_id == Exercise.id).filter(Attempt.user_id == current_user.id).all()
     return [
-        {
-            "word": exercise.word,
-            "phoneme": exercise.phoneme,
-            "transcription": attempt.transcription,
-            "is_correct": attempt.is_correct,
-            "score": attempt.score,
-            "attempted_at": attempt.attempted_at
-        }
-        for attempt, exercise in attempts
+    {
+    "word": exercise.word,
+    "phoneme": exercise.phoneme,
+    "transcription": attempt.transcription,
+    "is_correct": attempt.is_correct,
+    "score": attempt.score,
+    "attempted_at": attempt.attempted_at
+    }
+    for attempt, exercise in attempts
     ]
+    
+
+#app.post
+#@app.post("/auth/verify-pin")
+#def verify_pin(data: PinRequest, db: Session=Depends(get_db), current_user: User = Depends(get_current_user)):
+   # print("Entered PIN: ", repr(data.pin))
+    #print("Stored PIN: ", repr(current_user.pin))
+    
+    #if data.pin == current_user.pin:
+     #   return {"message": "PIN verified successfully"}
+    #else:
+     #   raise HTTPException(status_code=401, detail="Invalid PIN")

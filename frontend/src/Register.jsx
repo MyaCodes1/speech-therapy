@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Routes, Route, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 function Register() {
     const [name, setName] = useState("")
@@ -7,7 +7,7 @@ function Register() {
     const [password, setPassword] = useState("")
     const [error, setError] = useState("")
     const navigate = useNavigate()
-    const [pin, setPin] = useState("")
+    const [age, setAge] = useState("")
 
 
     const handleRegister = async () => {
@@ -15,7 +15,7 @@ function Register() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
-            body: JSON.stringify({ name, email, password, pin }),
+            body: JSON.stringify({ name, email, password, age: parseInt(age) }),
         })
         if (response.ok) {
             alert("Sign up successful! Please log in.")
@@ -37,11 +37,20 @@ function Register() {
 
 
 
-                <input type="name"
+                <input type="text"
                     placeholder="Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     style={{ width: "100%", padding: "12px", marginBottom: "1rem", borderRadius: "10px", border: "2px solid #d4a96a", fontSize: "1rem", outline: "none" }} />
+
+                <input type="number"
+                    placeholder="Child's Age"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    min={3}
+                    max={10}
+                    style={{ width: "100%", padding: "12px", marginBottom: "1rem", borderRadius: "10px", border: "2px solid #d4a96a", fontSize: "1rem", outline: "none" }} />
+
 
                 <input type="email"
                     placeholder="Email"
@@ -54,13 +63,6 @@ function Register() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     style={{ width: "100%", padding: "12px", marginBottom: "1rem", borderRadius: "10px", border: "2px solid #d4a96a", fontSize: "1rem", outline: "none" }} />
-
-                <input type="password"
-                    placeholder="Create a 4-digit parent PIN"
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value)}
-                    style={{ width: "100%", padding: "12px", marginBottom: "1rem", borderRadius: "10px", border: "2px solid #d4a96a", fontSize: "1rem", outline: "none" }} />
-
 
 
 

@@ -49,10 +49,6 @@ function Exercises() {
     }
 
     return (
-
-
-
-
         <div style={{ minHeight: "100vh", backgroundImage: "url('background.jpg')", backgroundSize: "cover", backgroundPosition: "center", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
 
             {result && result.is_correct && (
@@ -65,7 +61,7 @@ function Exercises() {
                     recycle={false}
                 />
             )}
-            <div style={{ background: "white", padding: "3rem", borderRadius: "30px", boxShadow: "0 1px 40px rgba(0,0,0,0.1)", textAlign: "center", width: "90%", maxWidth: "900pxs" }}>
+            <div style={{ background: "white", padding: "3rem", borderRadius: "30px", boxShadow: "0 1px 40px rgba(0,0,0,0.1)", textAlign: "center", width: "90%", maxWidth: "900px" }}>
                 <h2 style={{ color: "#5c3d1e", fontSize: "2.5rem", marginBottom: "1rem" }}> Say this word!
                 </h2>
 
@@ -109,22 +105,22 @@ function Exercises() {
                     <span style={{ fontSize: "4rem" }}>🎤</span>
                 </div>
 
-                <p style={{ marginTop: "1rem", color: "#888", fontSize: "2rem" }}>
+                <p style={{ marginTop: "1rem", color: "black", fontSize: "2rem" }}>
                     {recording ? "Recording..." : "Click the mic and say the word!"}
                 </p>
 
                 {result && (
-                    <div style={{ marginTop: "2rem", padding: "1.5rem", background: result.is_correct ? "#d4edda" : "#f8d7da", borderRadius: "15px" }}>
+                    <div style={{ marginTop: "2rem", padding: "1.5rem", maxWidth: "400px", margin: "1rem auto", background: result.is_correct ? "#d4edda" : "#fff3cd", borderRadius: "15px" }}>
                         <p style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>{result.is_correct ? "Correct! 🎉" : "Almost! 😊Try again"}</p>
                         <p style={{ color: "#5c3d1e" }}> You said: <strong>{result.transcription}</strong></p>
                         <p style={{ color: "#5c3d1e" }}> XP earned⭐️: <strong>{result.xp_earned}</strong></p>
                         <button onClick={() => navigate("/home")}
-                            style={{ marginTop: "1rem", background: "#5c3d1e", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer" }}>
+                            style={{ marginTop: "1rem", background: "#5c3d1e", marginRight: "1rem", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer" }}>
                             Back to home
                         </button>
 
                         <button onClick={() => setResult(null)}
-                            style={{ background: "##5c3d1e", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer" }}>
+                            style={{ background: "#e07b39", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer" }}>
                             Try again
                         </button>
                     </div>
