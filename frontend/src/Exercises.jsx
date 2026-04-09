@@ -8,8 +8,36 @@ function Exercises() {
     const [result, setResult] = useState(null)
     const navigate = useNavigate()
     const [hoveredMic, setHoveredMic] = useState(false)
+    const [noiseWarning, setNoiseWarning] = useState(false)
+
+    const checkNoiseLevel = async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        const audioContext = new AudioContext()
+        const analyser = audioContext.createAnalyser()
+        const microphone = audioContext.createMediaStreamSource(stream)
+        microphone.connect(analyser)
+        analyser.fftSize = 512
+        const dataArray = new Uint8Array(analyser.frequencyBinCount)
+
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                analyser.getByteFrequencyData(dataArray)
+                const average = dataArray.reduce((a, b) => a + b, 0) / dataArray.length
+                stream.getTracks().forEach(t => t.stop())
+                audioContext.close()
+                resolve(average)
+            }, 500)
+        })
+    }
+
 
     const handleRecord = async () => {
+        const noiseLevel = await checkNoiseLevel()
+        if (noiseLevel > 30) {
+            setNoiseWarning(true)
+        } else {
+            setNoiseWarning(false)
+        }
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
         const recorder = new MediaRecorder(stream)
         const chunks = []
@@ -45,6 +73,7 @@ function Exercises() {
     const speakWord = () => {
         const utterance = new SpeechSynthesisUtterance(word)
         utterance.rate = 0.8
+        utterance.lang = "en-GB"
         window.speechSynthesis.speak(utterance)
     }
 
@@ -77,6 +106,12 @@ function Exercises() {
                     style={{ background: "#e07b39", color: "white", border: "none", borderRadius: "10px", padding: "10px 20px", fontSize: "1rem", cursor: "pointer", marginBottom: "2rem" }}>
                     Hear the word
                 </button>
+
+                {noiseWarning && (
+                    <p style={{ color: "#e07b39", fontWeight: "bold", marginBottom: "1rem" }}>
+                        It's a bit noisy! Try to find a quieter spot!
+                    </p>
+                )}
 
 
                 <div
@@ -111,7 +146,7 @@ function Exercises() {
 
                 {result && (
                     <div style={{ marginTop: "2rem", padding: "1.5rem", maxWidth: "400px", margin: "1rem auto", background: result.is_correct ? "#d4edda" : "#fff3cd", borderRadius: "15px" }}>
-                        <p style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>{result.is_correct ? "Correct! 🎉" : "Almost! 😊Try again"}</p>
+                        <p style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>{result.is_correct ? "Correct! 🎉" : "You got this! 😊Try again"}</p>
                         <p style={{ color: "#5c3d1e" }}> You said: <strong>{result.transcription}</strong></p>
                         <p style={{ color: "#5c3d1e" }}> XP earned⭐️: <strong>{result.xp_earned}</strong></p>
                         <button onClick={() => navigate("/home")}

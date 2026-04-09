@@ -179,12 +179,6 @@ function ParentDashboard() {
                 </ResponsiveContainer>
             </div>
 
-
-
-
-
-
-
             <div style={{ background: "white", borderRadius: "15px", padding: "2rem", boxShadow: "0 4px 15px rgba(0,0,0,0.08)" }}>
                 <h2 style={{ color: "#5c3d1e", marginBottom: "1.5rem" }}>  Attempt history </h2>
                 {attempts.length === 0 ? (
