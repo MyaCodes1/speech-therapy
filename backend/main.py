@@ -10,6 +10,7 @@ import tempfile
 import os
 from fastapi import UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fuzzywuzzy import fuzz
 
 app = FastAPI() # Create an instance of the FastAPI class and assign it to the variable 'app'
 
@@ -183,7 +184,7 @@ def submit_attempt(
 
 
     target = exercise.word.lower()
-    is_correct = transcription == target
+    is_correct = fuzz.ratio(transcription, target) >= 40
     score = 100 if is_correct else 0
 
 

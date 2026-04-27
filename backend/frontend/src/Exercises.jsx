@@ -13,7 +13,6 @@ function Exercises() {
         const chunks = []
 
         recorder.ondataavailable = e => chunks.push(e.data)
-        recorder.start()
 
         recorder.onstop = async () => {
             const blob = new Blob(chunks, { type: "audio/wav" })

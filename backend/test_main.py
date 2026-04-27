@@ -33,3 +33,7 @@ def test_login_incorrect():
 def test_get_exercises():
     response = client.get("/exercises") # Send a GET request to the "/exercises" URL using the test client
     assert response.status_code in [200, 401] # Assert that the response status code is 200 (OK)
+
+
+
+
